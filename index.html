@@ -516,77 +516,73 @@ window.addEventListener('load', () => { autoGenContractNo(); });
             if(select.querySelector(`option[value='${currentSelect}']`)) select.value = currentSelect;
         }
 
-        async function searchContract() {
-            const searchNo = document.getElementById('searchInput').value.trim();
-            if(!searchNo) { alert("กรุณากรอกเลขที่สัญญา"); return; }
-            const btn = document.querySelector('.btn-search'); btn.innerText = "กำลังค้นหา..."; btn.disabled = true;
-            try {
-                const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'search', contract_no: searchNo }) });
-                const result = await response.json();
-                if(result.status === 'success') {
-                    const data = result.data;
-                    for (const key in data) {
-                        const input = document.querySelector(`[data-map="${key}"]`);
-                        if(input) { input.value = data[key]; input.dispatchEvent(new Event(input.type === 'date' ? 'change' : 'input')); }
+        // ✅ ฟังก์ชันค้นหาที่ปรับปรุงแล้ว (รองรับการรับค่าโดยตรง)
+    async function searchContract(directCNo = null) {
+        const searchNo = directCNo || document.getElementById('searchInput').value.trim();
+        if(!searchNo) { alert("กรุณากรอกเลขที่สัญญา"); return; }
+        
+        const btn = document.querySelector('.btn-search'); 
+        if(btn) { btn.innerText = "กำลังค้นหา..."; btn.disabled = true; }
+        
+        try {
+            const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'search', contract_no: searchNo }) });
+            const result = await response.json();
+            if(result.status === 'success') {
+                const data = result.data;
+                for (const key in data) {
+                    const input = document.querySelector(`[data-map="${key}"]`);
+                    if(input) { 
+                        input.value = data[key]; 
+                        input.dispatchEvent(new Event(input.type === 'date' ? 'change' : 'input')); 
                     }
-                    if(data.payment_records_json) { try { paymentRecords = JSON.parse(data.payment_records_json); } catch(e) {} } 
-                    generateTable(); alert("✅ พบข้อมูลสัญญา: " + data.b_name);
-                } else { alert("❌ ไม่พบข้อมูลสัญญานี้"); }
-            } catch(e) { alert("เชื่อมต่อไม่ได้: " + e.message); } 
-            finally { btn.innerText = "ค้นหา"; btn.disabled = false; }
-        }
-
-        async function runAllActions(isAuto = false) {
-            const btn = document.querySelector('.btn-group .btn-master');
-            if(btn) { btn.innerText = "⏳ กำลังดำเนินการ..."; btn.disabled = true; }
-            try {
-                let formData = { action: 'save', payment_records_json: JSON.stringify(paymentRecords) };
-                document.querySelectorAll('[data-map]').forEach(el => { formData[el.getAttribute('data-map')] = el.value; });
-                formData.file_name_base = `สัญญา_${formData.c_no || 'Draft'}_${formData.b_name || 'ลูกค้า'}`.replace(/[\/\s]/g, "-");
-                if (contactImageBase64) formData.contact_image_base64 = contactImageBase64;
-                
-                var wb = XLSX.utils.book_new(); 
-                let contractData = [["หัวข้อ", "ข้อมูล"]];
-                for(let key in formData) {
-                     if(typeof formData[key] === 'string' && formData[key].length < 500 && !key.includes('base64')) {
-                         let val = formData[key];
-                         if (key === 'c_date' || key === 'p_first') val = formatDateThai(val);
-                         contractData.push([key, val]);
-                     }
                 }
-                var ws1 = XLSX.utils.aoa_to_sheet(contractData);
-                XLSX.utils.book_append_sheet(wb, ws1, "ข้อมูลสัญญา");
-                const excelBase64 = XLSX.write(wb, {bookType:'xlsx', type:'base64'});
-                formData.excel_base64 = excelBase64;
-
-                const element = document.getElementById('contractContent');
-                const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
-                const imageBase64 = canvas.toDataURL('image/jpeg', 0.9);
-                formData.image_base64 = imageBase64;
-
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'legal');
-                const imgProps = doc.getImageProperties(imageBase64);
-                doc.addImage(imageBase64, 'JPEG', 0, 0, doc.internal.pageSize.getWidth(), (imgProps.height * doc.internal.pageSize.getWidth()) / imgProps.width);
-                formData.pdf_base64 = doc.output('datauristring').split(',')[1];
-
-                await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(formData) });
-                if(!isAuto) { alert("✅ บันทึกสำเร็จ!"); }
-            } catch (error) { if(!isAuto) alert("❌ เกิดข้อผิดพลาด: " + error.message); } 
-            finally { if(btn) { btn.innerHTML = '<i class="fas fa-save"></i> บันทึกรูปภาพ (ลงเครื่อง+Drive)'; btn.disabled = false; } }
-        }
-		
-		
-
-        window.onload = function() {
-            generateTable(); initVoiceSystem();
-            document.querySelectorAll('.fill-data').forEach(field => { if (!field.innerText) field.innerText = "-"; });
-            saveState(true);
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('auto_update') === 'true') {
-                 // Auto update logic here (omitted for brevity)
+                if(data.payment_records_json) { try { paymentRecords = JSON.parse(data.payment_records_json); } catch(e) {} } 
+                generateTable(); 
+                
+                // ไม่ต้อง alert ถ้าเป็นการโหลดอัตโนมัติ
+                if(!directCNo) alert("✅ พบข้อมูลสัญญา: " + data.b_name);
+            } else { 
+                if(!directCNo) alert("❌ ไม่พบข้อมูลสัญญานี้"); 
             }
-        };
-    </script>
+        } catch(e) { 
+            if(!directCNo) alert("เชื่อมต่อไม่ได้: " + e.message); 
+        } 
+        finally { 
+            if(btn) { btn.innerText = "ค้นหา"; btn.disabled = false; } 
+        }
+    }
+
+    window.onload = function() {
+        generateTable(); 
+        initVoiceSystem();
+        document.querySelectorAll('.fill-data').forEach(field => { if (!field.innerText) field.innerText = "-"; });
+        
+        // ✅ ตรวจสอบ URL Parameter เพื่อดึงข้อมูลสัญญา (แก้ไขปัญหาเลขรันใหม่)
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCNo = urlParams.get('c_no');
+        const isAutoUpdate = urlParams.get('auto_update') === 'true';
+
+        if (refCNo) {
+            // กรณีเปิดมาจากหน้าใบเสร็จ ให้ดึงข้อมูลสัญญาเดิมมาแสดง
+            document.getElementById('searchInput').value = refCNo;
+            document.getElementById('inp_c_no').value = refCNo; // Set ค่าเริ่มต้นกันพลาด
+            
+            // ดึงข้อมูลสัญญา
+            searchContract(refCNo).then(() => {
+                // หากต้องการให้อัปเดตและบันทึกอัตโนมัติ (ตามที่หน้าใบเสร็จส่งมา)
+                if (isAutoUpdate) {
+                    console.log("Auto updating contract...");
+                    // รอสักครู่ให้ข้อมูล Render เสร็จแล้วบันทึก
+                    setTimeout(() => { runAllActions(true); }, 2000);
+                }
+            });
+        } else {
+            // กรณีเปิดปกติ ให้รันเลขใหม่
+            autoGenContractNo();
+        }
+        
+        saveState(true);
+    };
+</script>
 </body>
 </html>
