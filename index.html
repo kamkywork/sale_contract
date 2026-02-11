@@ -620,20 +620,33 @@
                 try {
                     const element = document.getElementById('contractContent');
                     const canvas = await html2canvas(element, { 
-    scale: 2, 
-    backgroundColor: "#ffffff", 
-    useCORS: true,
-    windowWidth: 1200, // บังคับความกว้าง Desktop (1200px ขึ้นไป)
-    onclone: (clonedDoc) => {
-        const clonedEl = clonedDoc.getElementById('contractContent');
-        // บังคับให้ขนาดกระดาษเป็น Legal/A4 เสมอ ไม่ให้หดตามจอมือถือ
-        if(clonedEl) {
-            clonedEl.style.width = '215.9mm'; 
-            clonedEl.style.maxWidth = 'none';
-            clonedEl.style.margin = '0';
-        }
-    }
-});
+                        scale: 2, 
+                        backgroundColor: "#ffffff", 
+                        useCORS: true,
+                        windowWidth: 1200,   // บังคับกว้างเท่าคอม
+                        windowHeight: 3000,  // ✅ [เพิ่ม] บังคับหน้าต่างจำลองให้สูงมากๆ เพื่อให้ตารางไม่ขาด
+                        onclone: (clonedDoc) => {
+                            const clonedEl = clonedDoc.getElementById('contractContent');
+                            const clonedBody = clonedDoc.body;
+
+                            // ✅ [เพิ่ม] บังคับ Body ให้สูงพอ
+                            clonedBody.style.height = 'auto';
+                            clonedBody.style.minHeight = '3000px';
+
+                            if(clonedEl) {
+                                // บังคับขนาดกระดาษ
+                                clonedEl.style.width = '215.9mm'; 
+                                clonedEl.style.maxWidth = 'none';
+                                clonedEl.style.margin = '0 auto';
+                                
+                                // ✅ [สำคัญ] สั่งให้ความสูงยืดตามเนื้อหา (Table)
+                                clonedEl.style.height = 'auto'; 
+                                clonedEl.style.minHeight = 'fit-content'; 
+                                clonedEl.style.overflow = 'visible';
+                            }
+                        }
+                    });
+                    
                     const imageBase64 = canvas.toDataURL('image/jpeg', 0.9);
                     formData.image_base64 = imageBase64;
 
