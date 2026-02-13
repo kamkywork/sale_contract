@@ -275,7 +275,7 @@
 
     <script>
         // ⚠️ ต้องนำ URL ใหม่ที่ได้จากการ Deploy มาวางที่นี่
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwl1UxchsMzHSX1Sxav-3AmDOB-5GZcada-ml-UmqrDzje5--5vfocl4yrRND4cIuQKeA/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfkl34LC96QHyU4YHD-j9BznKQS3g8tO30vgcIaTXDkRabQ5IW81uhuC8ASNNnVcfM/exec';
         
         let paymentRecords = {};
         let contactImageBase64 = ""; 
@@ -529,7 +529,8 @@
     const searchNo = directCNo || document.getElementById('searchInput').value.trim();
     if(!searchNo) { alert("กรุณากรอกเลขที่สัญญา"); return; }
     
-    // ... (โค้ดเดิม) ...
+    const btn = document.querySelector('.btn-search');
+    if(btn) { btn.innerText = "⏳..."; btn.disabled = true; }
     
     try {
         const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'search', contract_no: searchNo }) });
@@ -544,34 +545,34 @@
                 }
             }
 
-            // 🔴🔴🔴 เริ่มส่วนที่ต้องเพิ่ม 🔴🔴🔴
-            // บังคับให้ Dropdown รหัสเซลล์ ตรงกับตัวอักษรแรกของเลขสัญญาเสมอ
+            // 🔴🔴🔴 [ส่วนที่แก้ไข] ปรับให้ดึง Prefix แบบไม่มีขีดได้ 🔴🔴🔴
             const cNoVal = document.getElementById('inp_c_no').value;
             if (cNoVal) {
-                // แยกตัวอักษรหน้าขีด (เช่น "K-001" จะได้ "K")
-                const prefix = cNoVal.split('-')[0].trim().toUpperCase(); 
+                // ใช้ Regex จับตัวอักษรภาษาอังกฤษกลุ่มแรก (เช่น K0001 หรือ K-0001 ก็ได้ K)
+                let match = cNoVal.match(/^([A-Z]+)/i);
+                const prefix = match ? match[1].toUpperCase() : "";
+                
                 const saleSelect = document.getElementById('inp_sale_code');
                 
-                // ถ้าขึ้นต้นด้วย T, K, หรือ N ให้ปรับ Dropdown ตามทันที
                 if (prefix === 'T' || prefix === 'K' || prefix === 'N') {
                     saleSelect.value = prefix;
                 }
             }
-            // 🔴🔴🔴 จบส่วนที่ต้องเพิ่ม 🔴🔴🔴
+            // 🔴🔴🔴 [จบส่วนที่แก้ไข] 🔴🔴🔴
 
             if(data.payment_records_json) { try { paymentRecords = JSON.parse(data.payment_records_json); } catch(e) {} } 
             generateTable(); 
             if(!directCNo) alert("✅ พบข้อมูลสัญญา: " + data.b_name);
-                } else { 
-                    if(!directCNo) alert("❌ ไม่พบข้อมูลสัญญานี้"); 
-                }
-            } catch(e) { 
-                if(!directCNo) alert("เชื่อมต่อไม่ได้: " + e.message); 
-            } 
-            finally { 
-                if(btn) { btn.innerText = "ค้นหา"; btn.disabled = false; } 
-            }
+        } else { 
+            if(!directCNo) alert("❌ ไม่พบข้อมูลสัญญานี้"); 
         }
+    } catch(e) { 
+        if(!directCNo) alert("เชื่อมต่อไม่ได้: " + e.message); 
+    } 
+    finally { 
+        if(btn) { btn.innerText = "ค้นหา"; btn.disabled = false; } 
+    }
+}
 
         // 🟢 ฟังก์ชันบันทึกตัวใหม่ (เพิ่ม Debug + Try/Catch)
         async function runAllActions(isAuto = false) {
