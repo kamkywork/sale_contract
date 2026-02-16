@@ -275,7 +275,7 @@
 
     <script>
         // ⚠️ ต้องนำ URL ใหม่ที่ได้จากการ Deploy มาวางที่นี่
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw8dBnzsUiQFNLzd6uhVV-HXMQcrPeeHVows4gx8rwj3YpP0_GSGrB0qe7vKSFP0yWK/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwl1UxchsMzHSX1Sxav-3AmDOB-5GZcada-ml-UmqrDzje5--5vfocl4yrRND4cIuQKeA/exec';
         
         let paymentRecords = {};
         let contactImageBase64 = ""; 
@@ -529,8 +529,7 @@
     const searchNo = directCNo || document.getElementById('searchInput').value.trim();
     if(!searchNo) { alert("กรุณากรอกเลขที่สัญญา"); return; }
     
-    const btn = document.querySelector('.btn-search');
-    if(btn) { btn.innerText = "⏳..."; btn.disabled = true; }
+    // ... (โค้ดเดิม) ...
     
     try {
         const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'search', contract_no: searchNo }) });
@@ -545,34 +544,34 @@
                 }
             }
 
-            // 🔴🔴🔴 [ส่วนที่แก้ไข] ปรับให้ดึง Prefix แบบไม่มีขีดได้ 🔴🔴🔴
+            // 🔴🔴🔴 เริ่มส่วนที่ต้องเพิ่ม 🔴🔴🔴
+            // บังคับให้ Dropdown รหัสเซลล์ ตรงกับตัวอักษรแรกของเลขสัญญาเสมอ
             const cNoVal = document.getElementById('inp_c_no').value;
             if (cNoVal) {
-                // ใช้ Regex จับตัวอักษรภาษาอังกฤษกลุ่มแรก (เช่น K0001 หรือ K-0001 ก็ได้ K)
-                let match = cNoVal.match(/^([A-Z]+)/i);
-                const prefix = match ? match[1].toUpperCase() : "";
-                
+                // แยกตัวอักษรหน้าขีด (เช่น "K-001" จะได้ "K")
+                const prefix = cNoVal.split('-')[0].trim().toUpperCase(); 
                 const saleSelect = document.getElementById('inp_sale_code');
                 
+                // ถ้าขึ้นต้นด้วย T, K, หรือ N ให้ปรับ Dropdown ตามทันที
                 if (prefix === 'T' || prefix === 'K' || prefix === 'N') {
                     saleSelect.value = prefix;
                 }
             }
-            // 🔴🔴🔴 [จบส่วนที่แก้ไข] 🔴🔴🔴
+            // 🔴🔴🔴 จบส่วนที่ต้องเพิ่ม 🔴🔴🔴
 
             if(data.payment_records_json) { try { paymentRecords = JSON.parse(data.payment_records_json); } catch(e) {} } 
             generateTable(); 
             if(!directCNo) alert("✅ พบข้อมูลสัญญา: " + data.b_name);
-        } else { 
-            if(!directCNo) alert("❌ ไม่พบข้อมูลสัญญานี้"); 
+                } else { 
+                    if(!directCNo) alert("❌ ไม่พบข้อมูลสัญญานี้"); 
+                }
+            } catch(e) { 
+                if(!directCNo) alert("เชื่อมต่อไม่ได้: " + e.message); 
+            } 
+            finally { 
+                if(btn) { btn.innerText = "ค้นหา"; btn.disabled = false; } 
+            }
         }
-    } catch(e) { 
-        if(!directCNo) alert("เชื่อมต่อไม่ได้: " + e.message); 
-    } 
-    finally { 
-        if(btn) { btn.innerText = "ค้นหา"; btn.disabled = false; } 
-    }
-}
 
         // 🟢 ฟังก์ชันบันทึกตัวใหม่ (เพิ่ม Debug + Try/Catch)
         async function runAllActions(isAuto = false) {
@@ -621,33 +620,20 @@
                 try {
                     const element = document.getElementById('contractContent');
                     const canvas = await html2canvas(element, { 
-                        scale: 2, 
-                        backgroundColor: "#ffffff", 
-                        useCORS: true,
-                        windowWidth: 1200,   // บังคับกว้างเท่าคอม
-                        windowHeight: 3000,  // ✅ [เพิ่ม] บังคับหน้าต่างจำลองให้สูงมากๆ เพื่อให้ตารางไม่ขาด
-                        onclone: (clonedDoc) => {
-                            const clonedEl = clonedDoc.getElementById('contractContent');
-                            const clonedBody = clonedDoc.body;
-
-                            // ✅ [เพิ่ม] บังคับ Body ให้สูงพอ
-                            clonedBody.style.height = 'auto';
-                            clonedBody.style.minHeight = '3000px';
-
-                            if(clonedEl) {
-                                // บังคับขนาดกระดาษ
-                                clonedEl.style.width = '215.9mm'; 
-                                clonedEl.style.maxWidth = 'none';
-                                clonedEl.style.margin = '0 auto';
-                                
-                                // ✅ [สำคัญ] สั่งให้ความสูงยืดตามเนื้อหา (Table)
-                                clonedEl.style.height = 'auto'; 
-                                clonedEl.style.minHeight = 'fit-content'; 
-                                clonedEl.style.overflow = 'visible';
-                            }
-                        }
-                    });
-                    
+    scale: 2, 
+    backgroundColor: "#ffffff", 
+    useCORS: true,
+    windowWidth: 1200, // บังคับความกว้าง Desktop (1200px ขึ้นไป)
+    onclone: (clonedDoc) => {
+        const clonedEl = clonedDoc.getElementById('contractContent');
+        // บังคับให้ขนาดกระดาษเป็น Legal/A4 เสมอ ไม่ให้หดตามจอมือถือ
+        if(clonedEl) {
+            clonedEl.style.width = '215.9mm'; 
+            clonedEl.style.maxWidth = 'none';
+            clonedEl.style.margin = '0';
+        }
+    }
+});
                     const imageBase64 = canvas.toDataURL('image/jpeg', 0.9);
                     formData.image_base64 = imageBase64;
 
