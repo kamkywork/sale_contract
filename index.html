@@ -619,21 +619,49 @@
                 // 2. Generate Image (html2canvas)
                 try {
                     const element = document.getElementById('contractContent');
+                    
+                    // ✅ แก้ไข: ตั้งค่า Config เพื่อแก้ปัญหาภาพขาดและบีบตัวในมือถือ
                     const canvas = await html2canvas(element, { 
-    scale: 2, 
-    backgroundColor: "#ffffff", 
-    useCORS: true,
-    windowWidth: 1200, // บังคับความกว้าง Desktop (1200px ขึ้นไป)
-    onclone: (clonedDoc) => {
-        const clonedEl = clonedDoc.getElementById('contractContent');
-        // บังคับให้ขนาดกระดาษเป็น Legal/A4 เสมอ ไม่ให้หดตามจอมือถือ
-        if(clonedEl) {
-            clonedEl.style.width = '215.9mm'; 
-            clonedEl.style.maxWidth = 'none';
-            clonedEl.style.margin = '0';
-        }
-    }
-});
+                        scale: 2,                // ความคมชัด 2 เท่า
+                        backgroundColor: "#ffffff", 
+                        useCORS: true,           // อนุญาตโหลดรูปข้ามโดเมน
+                        
+                        // ⚙️ บังคับขนาดหน้าจอจำลอง (แก้ปัญหา Safari บีบรูป)
+                        windowWidth: 1600,       // หลอกว่าเป็นจอคอมพิวเตอร์กว้าง 1600px
+                        windowHeight: 2150,      // หลอกว่าเป็นจอยาว 2150px (แก้ปัญหาส่วนท้ายตารางงวด 8-12 หาย)
+                        
+                        // ⚙️ ล็อคพิกัดการจับภาพ (แก้ปัญหาเลื่อนหน้าจอแล้วภาพแหว่ง)
+                        x: 0,
+                        y: 0,
+                        scrollY: 0,              // บังคับให้จับภาพจากจุดบนสุดเสมอ
+
+                        onclone: (clonedDoc) => {
+                            const clonedEl = clonedDoc.getElementById('contractContent');
+                            const clonedBody = clonedDoc.body;
+
+                            // ปรับ Body ของร่างจำลองให้รองรับเนื้อหาขนาดใหญ่
+                            clonedBody.style.width = '1600px';
+                            clonedBody.style.height = '2150px';
+                            clonedBody.style.overflow = 'visible'; // ห้ามซ่อนส่วนที่ล้น
+
+                            if(clonedEl) {
+                                // 📄 บังคับขนาดกระดาษ Legal
+                                clonedEl.style.width = '215.9mm';  
+                                clonedEl.style.minHeight = '355.6mm'; 
+                                
+                                // ✅ สำคัญ: สั่งให้ความสูงยืดตามเนื้อหาจริง (Auto) เพื่อแสดงตารางให้ครบ
+                                clonedEl.style.height = 'auto';    
+                                
+                                // ล้างค่า CSS ที่อาจทำให้เพี้ยนในมือถือ
+                                clonedEl.style.maxWidth = 'none';
+                                clonedEl.style.margin = '0';
+                                clonedEl.style.transform = 'none'; 
+                                clonedEl.style.boxShadow = 'none';
+                                clonedEl.style.position = 'static';
+                            }
+                        }
+                    });
+                    
                     const imageBase64 = canvas.toDataURL('image/jpeg', 0.9);
                     formData.image_base64 = imageBase64;
 
