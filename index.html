@@ -573,32 +573,28 @@
             }
         }
 
-        // 🟢 ฟังก์ชันบันทึกตัวใหม่ (เพิ่ม Debug + Try/Catch)
+        // 🟢 ฟังก์ชันบันทึกตัวใหม่ (แก้ไข: ลบ windowHeight เพื่อแก้ภาพยาวเกิน)
         async function runAllActions(isAuto = false) {
     const btn = document.querySelector('.btn-group .btn-master');
     if(btn) { btn.innerText = "⏳ กำลังดำเนินการ..."; btn.disabled = true; }
     
     try {
-        // [เพิ่มใหม่] รวมชื่อธนาคารและเลขบัญชี ใส่ลงไปใน data-map เพื่อให้ส่งเข้า Google Sheet ได้เหมือนเดิม
         let bName = document.getElementById('inp_shop_bank_name').value;
         let bAcc = document.getElementById('inp_shop_bank_acc').value;
-        // สร้าง Hidden Input ชั่วคราว หรืออัปเดตค่าลง object formData โดยตรง (แต่โค้ดข้างล่างใช้ querySelectorAll)
-        // วิธีที่ง่ายที่สุดคือ สร้าง input ลอยๆ ไว้รอรับค่า
+        
         if(!document.getElementById('hidden_bank_combine')) {
             let h = document.createElement('input'); 
-            h.type='hidden'; h.id='hidden_bank_combine'; h.setAttribute('data-map', 'shop_bank_detail'); // ใช้ชื่อ field เดิมที่ Sheet รับ
+            h.type='hidden'; h.id='hidden_bank_combine'; h.setAttribute('data-map', 'shop_bank_detail'); 
             document.body.appendChild(h);
         }
         document.getElementById('hidden_bank_combine').value = `${bName} ${bAcc}`.trim();
         saveNewShopToHistory();
-                saveNewShopToHistory();
 				console.log("Step 1: Starting Save Process...");
                 let formData = { action: 'save', payment_records_json: JSON.stringify(paymentRecords) };
                 document.querySelectorAll('[data-map]').forEach(el => { formData[el.getAttribute('data-map')] = el.value; });
                 formData.file_name_base = `สัญญา_${formData.c_no || 'Draft'}_${formData.b_name || 'ลูกค้า'}`.replace(/[\/\s]/g, "-");
                 if (contactImageBase64) formData.contact_image_base64 = contactImageBase64;
                 
-                // ตรวจสอบข้อมูลจำเป็น
                 if (!formData.c_no) { throw new Error("ไม่พบเลขที่สัญญา (กรุณากรอกหรือรอระบบ Gen เลข)"); }
 
                 // 1. Generate Excel
@@ -616,57 +612,49 @@
                 const excelBase64 = XLSX.write(wb, {bookType:'xlsx', type:'base64'});
                 formData.excel_base64 = excelBase64;
 
-                // 2. Generate Image (html2canvas)
+                // 2. Generate Image (html2canvas) - แก้ไข config ตรงนี้
                 try {
                     const element = document.getElementById('contractContent');
                     
-                    // ✅ แก้ไข: ตั้งค่า Config เพื่อแก้ปัญหาภาพขาดและบีบตัวในมือถือ
-                    const canvas = await html2canvas(element, { 
-                        scale: 2,                // ความคมชัด 2 เท่า
-                        backgroundColor: "#ffffff", 
-                        useCORS: true,           // อนุญาตโหลดรูปข้ามโดเมน
-                        
-                        // ⚙️ บังคับขนาดหน้าจอจำลอง (แก้ปัญหา Safari บีบรูป)
-                        windowWidth: 1600,       // หลอกว่าเป็นจอคอมพิวเตอร์กว้าง 1600px
-                        windowHeight: 2150,      // หลอกว่าเป็นจอยาว 2150px (แก้ปัญหาส่วนท้ายตารางงวด 8-12 หาย)
-                        
-                        // ⚙️ ล็อคพิกัดการจับภาพ (แก้ปัญหาเลื่อนหน้าจอแล้วภาพแหว่ง)
-                        x: 0,
-                        y: 0,
-                        scrollY: 0,              // บังคับให้จับภาพจากจุดบนสุดเสมอ
+                    // ในไฟล์ contract.html
+    const canvas = await html2canvas(element, { 
+        scale: 2,                
+        backgroundColor: "#ffffff", 
+        useCORS: true,           
+        windowWidth: 1600,       
+        x: 0, y: 0, scrollY: 0,              
 
-                        onclone: (clonedDoc) => {
-                            const clonedEl = clonedDoc.getElementById('contractContent');
-                            const clonedBody = clonedDoc.body;
+        onclone: (clonedDoc) => {
+            const clonedHtml = clonedDoc.documentElement;
+            const clonedBody = clonedDoc.body;
+            const clonedEl = clonedDoc.getElementById('contractContent');
 
-                            // ปรับ Body ของร่างจำลองให้รองรับเนื้อหาขนาดใหญ่
-                            clonedBody.style.width = '1600px';
-                            clonedBody.style.height = '2150px';
-                            clonedBody.style.overflow = 'visible'; // ห้ามซ่อนส่วนที่ล้น
+            // ✅ ปรับ Container ให้ยืดหดตามเนื้อหา
+            clonedHtml.style.height = 'auto';
+            clonedBody.style.height = 'auto';
+            clonedBody.style.width = '1600px';
+            clonedBody.style.minHeight = 'auto';
+            clonedBody.style.overflow = 'visible'; 
+            clonedBody.style.margin = '0'; // ลบขอบขาวรอบนอก
+            clonedBody.style.padding = '0';
 
-                            if(clonedEl) {
-                                // 📄 บังคับขนาดกระดาษ Legal
-                                clonedEl.style.width = '215.9mm';  
-                                clonedEl.style.minHeight = '355.6mm'; 
-                                
-                                // ✅ สำคัญ: สั่งให้ความสูงยืดตามเนื้อหาจริง (Auto) เพื่อแสดงตารางให้ครบ
-                                clonedEl.style.height = 'auto';    
-                                
-                                // ล้างค่า CSS ที่อาจทำให้เพี้ยนในมือถือ
-                                clonedEl.style.maxWidth = 'none';
-                                clonedEl.style.margin = '0';
-                                clonedEl.style.transform = 'none'; 
-                                clonedEl.style.boxShadow = 'none';
-                                clonedEl.style.position = 'static';
-                            }
-                        }
-                    });
+            if(clonedEl) {
+                clonedEl.style.width = '215.9mm';  
+                
+                // 🔴 จุดที่แก้ไข: เปลี่ยนจาก 355.6mm เป็น auto เพื่อตัดพื้นที่ว่างด้านล่างทิ้ง
+                clonedEl.style.minHeight = 'auto'; 
+                
+                clonedEl.style.height = 'max-content'; // บังคับให้สูงเท่าเนื้อหาจริง
+                clonedEl.style.boxShadow = 'none'; // ลบเงากระดาษออกเพื่อให้รูปคลีน
+                clonedEl.style.margin = '0 auto';  // จัดกึ่งกลาง
+            }
+        }
+    });
                     
                     const imageBase64 = canvas.toDataURL('image/jpeg', 0.9);
                     formData.image_base64 = imageBase64;
 
-                    // 3. Generate PDF (jsPDF)
-                    // ตรวจสอบว่า jsPDF โหลดมาหรือไม่
+                    // 3. Generate PDF
                     const { jsPDF } = window.jspdf || window;
                     if(jsPDF) {
                         const doc = new jsPDF('p', 'mm', 'legal');
@@ -676,11 +664,9 @@
                     }
                 } catch(imgErr) {
                     console.error("Image Gen Error:", imgErr);
-                    // ถ้าสร้างรูปไม่ได้ ให้บันทึกข้อมูลอย่างเดียว ไม่ต้อง Throw Error
                 }
 
                 console.log("Step 2: Sending Data to Script...");
-                // 4. Send to Google Apps Script
                 await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(formData) });
                 
                 if(!isAuto) { alert("✅ บันทึกสำเร็จ!"); }
