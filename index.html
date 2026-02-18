@@ -330,17 +330,36 @@
         }
 
         function formatDateThai(dateStr) {
-            if (!dateStr || dateStr === "-") return "-";
+            if (!dateStr || dateStr === "-" || dateStr === "") return "";
+            
+            const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            
             try {
-                let date;
+                // กรณี 1: รับค่าจาก Date Picker (yyyy-mm-dd) เช่น 2026-02-15
                 if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
                     const parts = dateStr.split('-');
-                    date = new Date(parts[0], parts[1] - 1, parts[2]);
-                } else { date = new Date(dateStr); }
-                if (isNaN(date.getTime())) return dateStr; 
-                const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-                return `${date.getDate()} ${months[date.getMonth()]} ${(date.getFullYear() + 543).toString().slice(-2)}`;
+                    const y = parseInt(parts[0]);
+                    const m = parseInt(parts[1]);
+                    const d = parseInt(parts[2]);
+                    const thaiYear = y < 2400 ? y + 543 : y; 
+                    return `${d} ${months[m - 1]} ${thaiYear.toString().slice(-2)}`;
+                }
+                
+                // กรณี 2: รับค่าแบบมี / คั่น (dd/mm/yyyy) เช่น 15/02/2569 (แก้ไขปัญหานี้)
+                if (typeof dateStr === 'string' && dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+                    const parts = dateStr.split('/');
+                    const d = parseInt(parts[0]);
+                    const m = parseInt(parts[1]);
+                    const y = parseInt(parts[2]);
+                    // เช็คว่าเป็นปี พ.ศ. หรือ ค.ศ.
+                    const thaiYear = y < 2400 ? y + 543 : y;
+                    return `${d} ${months[m - 1]} ${thaiYear.toString().slice(-2)}`;
+                }
+
             } catch (e) { return dateStr; }
+            
+            // กรณีเป็นรูปแบบที่ถูกต้องอยู่แล้ว (เช่น 15 ก.พ. 69) หรืออื่นๆ ให้คืนค่าเดิม
+            return dateStr;
         }
 
         function formatIdCard(obj) {
@@ -526,7 +545,8 @@
                     let opt = document.createElement("option");
                     opt.value = instNum; opt.text = `งวดที่ ${instNum} (${dateStr})`; select.appendChild(opt);
                     if(paymentRecords[instNum]) {
-                        actDateStr = paymentRecords[instNum].actualDate || "";
+                        // ✅ เรียกใช้ formatDateThai ที่นี่
+                        actDateStr = formatDateThai(paymentRecords[instNum].actualDate || "");
                         receiptStr = paymentRecords[instNum].receiptNo || "";
                         paidAmountStr = paymentRecords[instNum].paidAmount || "";
                         methodStr = paymentRecords[instNum].payMethod || "";
