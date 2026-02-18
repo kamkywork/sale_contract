@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสัญญาเช่าซื้อ - V.Final Cost Integration</title> 
+    <title>ระบบสัญญาเช่าซื้อ - V.Final Auto Save & Close</title> 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
@@ -573,7 +573,7 @@
             }
         }
 
-        // 🟢 ฟังก์ชันบันทึกตัวใหม่ (แก้ไข: ลบ windowHeight เพื่อแก้ภาพยาวเกิน)
+        // 🟢 ฟังก์ชันบันทึกตัวใหม่ (V.Final with Auto Save & Close)
         async function runAllActions(isAuto = false) {
     const btn = document.querySelector('.btn-group .btn-master');
     if(btn) { btn.innerText = "⏳ กำลังดำเนินการ..."; btn.disabled = true; }
@@ -669,11 +669,22 @@
                 console.log("Step 2: Sending Data to Script...");
                 await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(formData) });
                 
-                if(!isAuto) { alert("✅ บันทึกสำเร็จ!"); }
+                // ✅ ส่วนที่เพิ่ม: ถ้าเป็น Auto Update ให้ปิดหน้าต่างทันที
+                if(!isAuto) { 
+                    alert("✅ บันทึกสำเร็จ!"); 
+                } else {
+                    window.opener && window.opener.focus();
+                    window.close();
+                }
 
             } catch (error) { 
                 console.error(error);
-                if(!isAuto) alert("❌ เกิดข้อผิดพลาด: " + error.message); 
+                if(!isAuto) {
+                    alert("❌ เกิดข้อผิดพลาด: " + error.message); 
+                } else {
+                    // แจ้งเตือนแม้จะเป็น Auto เพื่อให้รู้ว่าเกิด Error
+                    alert("❌ Auto Save Failed: " + error.message);
+                }
             } 
             finally { 
                 if(btn) { 
@@ -788,7 +799,8 @@ function saveNewShopToHistory() {
                 document.getElementById('inp_c_no').value = refCNo;
                 searchContract(refCNo).then(() => {
                     if (isAutoUpdate) {
-                        setTimeout(() => { runAllActions(true); }, 2000);
+                        // เพิ่มเวลาหน่วงเป็น 3 วินาที เพื่อความมั่นใจ
+                        setTimeout(() => { runAllActions(true); }, 3000);
                     }
                 });
             } else {
