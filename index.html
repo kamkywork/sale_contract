@@ -51,7 +51,6 @@
         th, td { border: 1px solid black; padding: 4px; text-align: center; font-size: 14px; height: 25px; word-break: break-word; }
         th { background-color: #f2f2f2; }
         
-        /* Auto Save Overlay */
         .auto-save-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); z-index: 9999;
@@ -128,45 +127,40 @@
             <input type="text" id="inp_cost_price" data-map="product_cost" oninput="autoComma(this); calcTransfer();" placeholder="ระบุราคาเต็ม..." style="border-left: 3px solid #c0392b;">
         </div>
         <div class="form-group">
-    <label>ร้านค้าคู่ค้า (พิมพ์ใหม่ หรือเลือกจากประวัติ)</label>
-    <input type="text" id="inp_shop_partner" list="shop_history_list" data-map="shop_name" 
-           oninput="autoFillBankInfo()" 
-           placeholder="ระบุชื่อร้านค้า..." 
-           style="background: #fff; color: #333;">
-    
-    <datalist id="shop_history_list"></datalist>
+            <label>ร้านค้าคู่ค้า (พิมพ์ใหม่ หรือเลือกจากประวัติ)</label>
+            <input type="text" id="inp_shop_partner" list="shop_history_list" data-map="shop_name" oninput="autoFillBankInfo()" placeholder="ระบุชื่อร้านค้า..." style="background: #fff; color: #333;">
+            <datalist id="shop_history_list"></datalist>
 
-    <div style="display: flex; gap: 5px; margin-top: 5px;">
-        <select id="inp_shop_bank_name" onchange="updateBankDisplay()" style="width: 40%; font-size: 12px; background: #ecf0f1; color: #333;">
-            <option value="">-- เลือกธนาคาร --</option>
-            <option value="กสิกรไทย (KBANK)">กสิกรไทย (KBANK)</option>
-            <option value="ไทยพาณิชย์ (SCB)">ไทยพาณิชย์ (SCB)</option>
-            <option value="กรุงเทพ (BBL)">กรุงเทพ (BBL)</option>
-            <option value="กรุงไทย (KTB)">กรุงไทย (KTB)</option>
-            <option value="กรุงศรี (BAY)">กรุงศรี (BAY)</option>
-            <option value="ทหารไทยธนชาต (TTB)">ทหารไทยธนชาต (TTB)</option>
-            <option value="ออมสิน (GSB)">ออมสิน (GSB)</option>
-            <option value="ธ.ก.ส. (BAAC)">ธ.ก.ส. (BAAC)</option>
-            <option value="ยูโอบี (UOB)">ยูโอบี (UOB)</option>
-            <option value="ซีไอเอ็มบี (CIMB)">ซีไอเอ็มบี (CIMB)</option>
-            <option value="อาคารสงเคราะห์ (GHB)">อาคารสงเคราะห์ (GHB)</option>
-            <option value="แลนด์ แอนด์ เฮ้าส์ (LH)">แลนด์ แอนด์ เฮ้าส์ (LH)</option>
-            <option value="ทิสโก้ (TISCO)">ทิสโก้ (TISCO)</option>
-            <option value="เกียรตินาคินภัทร (KKP)">เกียรตินาคินภัทร (KKP)</option>
-            <option value="ไอซีบีซี (ICBC)">ไอซีบีซี (ICBC)</option>
-            <option value="ไทยเครดิต (TCR)">ไทยเครดิต (TCR)</option>
-        </select>
-        <input type="text" id="inp_shop_bank_acc" oninput="updateBankDisplay()" 
-               placeholder="เลขที่บัญชี / ชื่อบัญชี" 
-               style="width: 60%; font-size: 12px; color: #333; background: #fff;">
-    </div>
-</div>
+            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                <select id="inp_shop_bank_name" onchange="updateBankDisplay()" style="width: 40%; font-size: 12px; background: #ecf0f1; color: #333;">
+                    <option value="">-- เลือกธนาคาร --</option>
+                    <option value="กสิกรไทย (KBANK)">กสิกรไทย (KBANK)</option>
+                    <option value="ไทยพาณิชย์ (SCB)">ไทยพาณิชย์ (SCB)</option>
+                    <option value="กรุงเทพ (BBL)">กรุงเทพ (BBL)</option>
+                    <option value="กรุงไทย (KTB)">กรุงไทย (KTB)</option>
+                    <option value="กรุงศรี (BAY)">กรุงศรี (BAY)</option>
+                    <option value="ทหารไทยธนชาต (TTB)">ทหารไทยธนชาต (TTB)</option>
+                    <option value="ออมสิน (GSB)">ออมสิน (GSB)</option>
+                    <option value="ธ.ก.ส. (BAAC)">ธ.ก.ส. (BAAC)</option>
+                    <option value="ยูโอบี (UOB)">ยูโอบี (UOB)</option>
+                    <option value="ซีไอเอ็มบี (CIMB)">ซีไอเอ็มบี (CIMB)</option>
+                    <option value="อาคารสงเคราะห์ (GHB)">อาคารสงเคราะห์ (GHB)</option>
+                    <option value="แลนด์ แอนด์ เฮ้าส์ (LH)">แลนด์ แอนด์ เฮ้าส์ (LH)</option>
+                    <option value="ทิสโก้ (TISCO)">ทิสโก้ (TISCO)</option>
+                    <option value="เกียรตินาคินภัทร (KKP)">เกียรตินาคินภัทร (KKP)</option>
+                    <option value="ไอซีบีซี (ICBC)">ไอซีบีซี (ICBC)</option>
+                    <option value="ไทยเครดิต (TCR)">ไทยเครดิต (TCR)</option>
+                </select>
+                <input type="text" id="inp_shop_bank_acc" oninput="updateBankDisplay()" placeholder="เลขที่บัญชี / ชื่อบัญชี" style="width: 60%; font-size: 12px; color: #333; background: #fff;">
+            </div>
+        </div>
 
-<div class="form-group" style="background: rgba(192, 57, 43, 0.1); padding: 10px; border-radius: 4px; border: 1px solid #c0392b;">
-    <label style="color: #c0392b; font-weight: bold;">💰 ยอดที่ต้องโอนให้ร้าน</label>
-    <input type="text" id="inp_transfer_shop" data-map="shop_transfer_amount" style="color: #c0392b; font-weight: bold; background: #fff;" readonly>
-    <div id="shop_bank_display" style="font-size: 12px; color: #ecf0f1; margin-top: 5px; font-weight: bold;"></div>
-</div>
+        <div class="form-group" style="background: rgba(192, 57, 43, 0.1); padding: 10px; border-radius: 4px; border: 1px solid #c0392b;">
+            <label style="color: #c0392b; font-weight: bold;">💰 ยอดที่ต้องโอนให้ร้าน</label>
+            <input type="text" id="inp_transfer_shop" data-map="shop_transfer_amount" style="color: #c0392b; font-weight: bold; background: #fff;" readonly>
+            <div id="shop_bank_display" style="font-size: 12px; color: #ecf0f1; margin-top: 5px; font-weight: bold;"></div>
+        </div>
+        
         <div class="section-header">ข้อมูลผู้ซื้อ</div>
         <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="inp_b_name" data-map="b_name" oninput="update('b_name', this.value)"></div>
         <div class="form-group"><label>ชื่อเล่น</label><input type="text" id="inp_b_nick" data-map="b_nick" oninput="update('b_nick', this.value)"></div>
@@ -295,13 +289,11 @@
     </div>
 
     <script>
-        // ⚠️ ต้องนำ URL ใหม่ที่ได้จากการ Deploy มาวางที่นี่
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBD7BmSsWV5of8MmdDNVJbdF5LuQFDbYOL7BTSXxFti_xCCO2WLmC4pXsMWwZt1uruPw/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZH4cnowN-awdFQdCfyPtB6C0tsnuQk5VxxspocuB5PmJZRJN43fSCutouYVdoCFW2/exec';
         
         let paymentRecords = {};
         let contactImageBase64 = ""; 
 
-        // Calculation
         function calcTransfer() {
             let fullPrice = parseFloat(document.getElementById('inp_cost_price').value.replace(/,/g,'')) || 0;
             let down = parseFloat(document.getElementById('inp_p_down').value.replace(/,/g,'')) || 0;
@@ -331,11 +323,8 @@
 
         function formatDateThai(dateStr) {
             if (!dateStr || dateStr === "-" || dateStr === "") return "";
-            
             const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-            
             try {
-                // กรณี 1: รับค่าจาก Date Picker (yyyy-mm-dd) เช่น 2026-02-15
                 if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
                     const parts = dateStr.split('-');
                     const y = parseInt(parts[0]);
@@ -344,21 +333,15 @@
                     const thaiYear = y < 2400 ? y + 543 : y; 
                     return `${d} ${months[m - 1]} ${thaiYear.toString().slice(-2)}`;
                 }
-                
-                // กรณี 2: รับค่าแบบมี / คั่น (dd/mm/yyyy) เช่น 15/02/2569 (แก้ไขปัญหานี้)
                 if (typeof dateStr === 'string' && dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
                     const parts = dateStr.split('/');
                     const d = parseInt(parts[0]);
                     const m = parseInt(parts[1]);
                     const y = parseInt(parts[2]);
-                    // เช็คว่าเป็นปี พ.ศ. หรือ ค.ศ.
                     const thaiYear = y < 2400 ? y + 543 : y;
                     return `${d} ${months[m - 1]} ${thaiYear.toString().slice(-2)}`;
                 }
-
             } catch (e) { return dateStr; }
-            
-            // กรณีเป็นรูปแบบที่ถูกต้องอยู่แล้ว (เช่น 15 ก.พ. 69) หรืออื่นๆ ให้คืนค่าเดิม
             return dateStr;
         }
 
@@ -376,7 +359,6 @@
 
         function formatPhone(obj) {
             let raw = obj.value.replace(/[^0-9]/g, ''); 
-            let isMobileField = obj.id.includes('mobile'); 
             let formatted = raw;
             if (raw.length > 10) raw = raw.substring(0, 10);
             if (raw.length > 6) formatted = raw.slice(0,3) + '-' + raw.slice(3,6) + '-' + raw.slice(6);
@@ -525,16 +507,20 @@
             let currentSelect = select.value;
             select.innerHTML = '<option value="">-- เลือกงวด --</option>';
             const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            
             for (let i = 0; i < fixedRows; i++) {
                 let dateStr = "", actDateStr = "", receiptStr = "", paidAmountStr = "", methodStr = "";
                 let instNum = i + 1;
+                
                 if (i < inputInstallments) {
                     if(startDateVal) {
                         const parts = startDateVal.split('-');
                         const startObj = new Date(parts[0], parts[1] - 1, parts[2]);
                         let targetDate;
-                        if (i === 0) targetDate = startObj;
-                        else {
+                        
+                        if (i === 0) {
+                            targetDate = startObj;
+                        } else {
                             let payDayVal = parseInt(document.getElementById('inp_p_day').value);
                             let preferredDay = (payDayVal && payDayVal > 0 && payDayVal <= 31) ? payDayVal : startObj.getDate();
                             
@@ -549,13 +535,15 @@
                             
                             targetDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), finalDay);
                         }
+                        
                         const y = (targetDate.getFullYear() + 543).toString().slice(-2);
                         dateStr = `${targetDate.getDate()} ${months[targetDate.getMonth()]} ${y}`;
                     }
+                    
                     let opt = document.createElement("option");
                     opt.value = instNum; opt.text = `งวดที่ ${instNum} (${dateStr})`; select.appendChild(opt);
+                    
                     if(paymentRecords[instNum]) {
-                        // ✅ เรียกใช้ formatDateThai ที่นี่
                         actDateStr = formatDateThai(paymentRecords[instNum].actualDate || "");
                         receiptStr = paymentRecords[instNum].receiptNo || "";
                         paidAmountStr = paymentRecords[instNum].paidAmount || "";
@@ -568,7 +556,6 @@
             if(select.querySelector(`option[value='${currentSelect}']`)) select.value = currentSelect;
         }
 
-        // --- 🟢 ฟังก์ชันค้นหาและคืนค่าสถานะ (สำคัญสำหรับการรอ) ---
         function searchContract(directCNo = null) {
             const searchNo = directCNo || document.getElementById('searchInput').value.trim();
             if(!searchNo) { alert("กรุณากรอกเลขที่สัญญา"); return Promise.reject("No Input"); }
@@ -605,10 +592,10 @@
                     generateTable(); 
                     
                     if(!directCNo) alert("✅ พบข้อมูลสัญญา: " + data.b_name);
-                    return true; // ✅ ส่งสัญญาณว่าสำเร็จ
+                    return true;
                 } else { 
                     if(!directCNo) alert("❌ ไม่พบข้อมูลสัญญานี้"); 
-                    return false; // ❌ ส่งสัญญาณว่าไม่พบ
+                    return false;
                 }
             })
             .catch(e => { 
@@ -620,29 +607,27 @@
             });
         }
 
-        // 🟢 ฟังก์ชันบันทึกตัวใหม่ (V.Final with Auto Save & Close)
         async function runAllActions(isAuto = false) {
-    const btn = document.querySelector('.btn-group .btn-master');
-    if(btn) { btn.innerText = "⏳ กำลังดำเนินการ..."; btn.disabled = true; }
-    
-    // แสดง Overlay ถ้าเป็น Auto
-    if(isAuto) {
-        document.getElementById('autoSaveOverlay').style.display = 'flex';
-        document.getElementById('autoSaveText').innerText = "⏳ กำลังบันทึกและอัปเดตสัญญา...";
-    }
+            const btn = document.querySelector('.btn-group .btn-master');
+            if(btn) { btn.innerText = "⏳ กำลังดำเนินการ..."; btn.disabled = true; }
+            
+            if(isAuto) {
+                document.getElementById('autoSaveOverlay').style.display = 'flex';
+                document.getElementById('autoSaveText').innerText = "⏳ กำลังบันทึกและอัปเดตสัญญา...";
+            }
 
-    try {
-        let bName = document.getElementById('inp_shop_bank_name').value;
-        let bAcc = document.getElementById('inp_shop_bank_acc').value;
-        
-        if(!document.getElementById('hidden_bank_combine')) {
-            let h = document.createElement('input'); 
-            h.type='hidden'; h.id='hidden_bank_combine'; h.setAttribute('data-map', 'shop_bank_detail'); 
-            document.body.appendChild(h);
-        }
-        document.getElementById('hidden_bank_combine').value = `${bName} ${bAcc}`.trim();
-        saveNewShopToHistory();
-				console.log("Step 1: Starting Save Process...");
+            try {
+                let bName = document.getElementById('inp_shop_bank_name').value;
+                let bAcc = document.getElementById('inp_shop_bank_acc').value;
+                
+                if(!document.getElementById('hidden_bank_combine')) {
+                    let h = document.createElement('input'); 
+                    h.type='hidden'; h.id='hidden_bank_combine'; h.setAttribute('data-map', 'shop_bank_detail'); 
+                    document.body.appendChild(h);
+                }
+                document.getElementById('hidden_bank_combine').value = `${bName} ${bAcc}`.trim();
+                saveNewShopToHistory();
+
                 let formData = { action: 'save', payment_records_json: JSON.stringify(paymentRecords) };
                 document.querySelectorAll('[data-map]').forEach(el => { formData[el.getAttribute('data-map')] = el.value; });
                 formData.file_name_base = `สัญญา_${formData.c_no || 'Draft'}_${formData.b_name || 'ลูกค้า'}`.replace(/[\/\s]/g, "-");
@@ -650,7 +635,6 @@
                 
                 if (!formData.c_no) { throw new Error("ไม่พบเลขที่สัญญา (กรุณากรอกหรือรอระบบ Gen เลข)"); }
 
-                // 1. Generate Excel
                 var wb = XLSX.utils.book_new(); 
                 let contractData = [["หัวข้อ", "ข้อมูล"]];
                 for(let key in formData) {
@@ -665,45 +649,41 @@
                 const excelBase64 = XLSX.write(wb, {bookType:'xlsx', type:'base64'});
                 formData.excel_base64 = excelBase64;
 
-                // 2. Generate Image (html2canvas)
                 try {
                     const element = document.getElementById('contractContent');
-                    
-    const canvas = await html2canvas(element, { 
-        scale: 2,                
-        backgroundColor: "#ffffff", 
-        useCORS: true,           
-        windowWidth: 1600,       
-        x: 0, y: 0, scrollY: 0,              
+                    const canvas = await html2canvas(element, { 
+                        scale: 2,                
+                        backgroundColor: "#ffffff", 
+                        useCORS: true,           
+                        windowWidth: 1600,       
+                        x: 0, y: 0, scrollY: 0,              
 
-        onclone: (clonedDoc) => {
-            const clonedHtml = clonedDoc.documentElement;
-            const clonedBody = clonedDoc.body;
-            const clonedEl = clonedDoc.getElementById('contractContent');
+                        onclone: (clonedDoc) => {
+                            const clonedHtml = clonedDoc.documentElement;
+                            const clonedBody = clonedDoc.body;
+                            const clonedEl = clonedDoc.getElementById('contractContent');
 
-            // ✅ ปรับ Container ให้ยืดหดตามเนื้อหา
-            clonedHtml.style.height = 'auto';
-            clonedBody.style.height = 'auto';
-            clonedBody.style.width = '1600px';
-            clonedBody.style.minHeight = 'auto';
-            clonedBody.style.overflow = 'visible'; 
-            clonedBody.style.margin = '0'; // ลบขอบขาวรอบนอก
-            clonedBody.style.padding = '0';
+                            clonedHtml.style.height = 'auto';
+                            clonedBody.style.height = 'auto';
+                            clonedBody.style.width = '1600px';
+                            clonedBody.style.minHeight = 'auto';
+                            clonedBody.style.overflow = 'visible'; 
+                            clonedBody.style.margin = '0'; 
+                            clonedBody.style.padding = '0';
 
-            if(clonedEl) {
-                clonedEl.style.width = '215.9mm';  
-                clonedEl.style.minHeight = 'auto'; 
-                clonedEl.style.height = 'max-content'; // บังคับให้สูงเท่าเนื้อหาจริง
-                clonedEl.style.boxShadow = 'none'; // ลบเงากระดาษออกเพื่อให้รูปคลีน
-                clonedEl.style.margin = '0 auto';  // จัดกึ่งกลาง
-            }
-        }
-    });
+                            if(clonedEl) {
+                                clonedEl.style.width = '215.9mm';  
+                                clonedEl.style.minHeight = 'auto'; 
+                                clonedEl.style.height = 'max-content'; 
+                                clonedEl.style.boxShadow = 'none'; 
+                                clonedEl.style.margin = '0 auto';  
+                            }
+                        }
+                    });
                     
                     const imageBase64 = canvas.toDataURL('image/jpeg', 0.9);
                     formData.image_base64 = imageBase64;
 
-                    // 3. Generate PDF
                     const { jsPDF } = window.jspdf || window;
                     if(jsPDF) {
                         const doc = new jsPDF('p', 'mm', 'legal');
@@ -715,7 +695,6 @@
                     console.error("Image Gen Error:", imgErr);
                 }
 
-                console.log("Step 2: Sending Data to Script...");
                 await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(formData) });
                 
                 if(!isAuto) { 
@@ -745,78 +724,76 @@
             }
         }
 
-function loadShopHistory() {
-    let shops = JSON.parse(localStorage.getItem('contract_shop_history')) || [];
-    if (shops.length === 0) {
-        shops = [{ name: "ร้านตัวอย่าง", bankName: "กสิกรไทย (KBANK)", bankAcc: "123-4-56789-0" }];
-        localStorage.setItem('contract_shop_history', JSON.stringify(shops));
-    }
-    const dataList = document.getElementById('shop_history_list');
-    dataList.innerHTML = '';
-    shops.forEach(shop => {
-        let option = document.createElement('option');
-        option.value = shop.name;
-        dataList.appendChild(option);
-    });
-}
-
-function autoFillBankInfo() {
-    let name = document.getElementById('inp_shop_partner').value;
-    let shops = JSON.parse(localStorage.getItem('contract_shop_history')) || [];
-    let found = shops.find(s => s.name === name);
-    if (found) {
-        if (found.bankName) {
-            document.getElementById('inp_shop_bank_name').value = found.bankName;
-            document.getElementById('inp_shop_bank_acc').value = found.bankAcc;
-        } else if (found.bank) {
-            document.getElementById('inp_shop_bank_name').value = ""; 
-            document.getElementById('inp_shop_bank_acc').value = found.bank;
+        function loadShopHistory() {
+            let shops = JSON.parse(localStorage.getItem('contract_shop_history')) || [];
+            if (shops.length === 0) {
+                shops = [{ name: "ร้านตัวอย่าง", bankName: "กสิกรไทย (KBANK)", bankAcc: "123-4-56789-0" }];
+                localStorage.setItem('contract_shop_history', JSON.stringify(shops));
+            }
+            const dataList = document.getElementById('shop_history_list');
+            dataList.innerHTML = '';
+            shops.forEach(shop => {
+                let option = document.createElement('option');
+                option.value = shop.name;
+                dataList.appendChild(option);
+            });
         }
-    } else {
-        document.getElementById('inp_shop_bank_name').value = "";
-        document.getElementById('inp_shop_bank_acc').value = ""; 
-    }
-    updateBankDisplay();
-}
 
-function updateBankDisplay() {
-    let bankName = document.getElementById('inp_shop_bank_name').value;
-    let bankAcc = document.getElementById('inp_shop_bank_acc').value;
-    let displayDiv = document.getElementById('shop_bank_display');
-    
-    if (bankName || bankAcc) {
-        displayDiv.innerText = `🏦 โอนไปที่: ${bankName} ${bankAcc}`;
-        displayDiv.style.color = "#f1c40f"; 
-    } else {
-        displayDiv.innerText = "";
-    }
-}
+        function autoFillBankInfo() {
+            let name = document.getElementById('inp_shop_partner').value;
+            let shops = JSON.parse(localStorage.getItem('contract_shop_history')) || [];
+            let found = shops.find(s => s.name === name);
+            if (found) {
+                if (found.bankName) {
+                    document.getElementById('inp_shop_bank_name').value = found.bankName;
+                    document.getElementById('inp_shop_bank_acc').value = found.bankAcc;
+                } else if (found.bank) {
+                    document.getElementById('inp_shop_bank_name').value = ""; 
+                    document.getElementById('inp_shop_bank_acc').value = found.bank;
+                }
+            } else {
+                document.getElementById('inp_shop_bank_name').value = "";
+                document.getElementById('inp_shop_bank_acc').value = ""; 
+            }
+            updateBankDisplay();
+        }
 
-function saveNewShopToHistory() {
-    let name = document.getElementById('inp_shop_partner').value.trim();
-    let bankName = document.getElementById('inp_shop_bank_name').value;
-    let bankAcc = document.getElementById('inp_shop_bank_acc').value.trim();
-    if (!name) return;
-    let shops = JSON.parse(localStorage.getItem('contract_shop_history')) || [];
-    let existingIndex = shops.findIndex(s => s.name === name);
-    let newEntry = { name: name, bankName: bankName, bankAcc: bankAcc };
-    if (existingIndex >= 0) { shops[existingIndex] = newEntry; } else { shops.push(newEntry); }
-    localStorage.setItem('contract_shop_history', JSON.stringify(shops));
-    loadShopHistory();
-}
+        function updateBankDisplay() {
+            let bankName = document.getElementById('inp_shop_bank_name').value;
+            let bankAcc = document.getElementById('inp_shop_bank_acc').value;
+            let displayDiv = document.getElementById('shop_bank_display');
+            
+            if (bankName || bankAcc) {
+                displayDiv.innerText = `🏦 โอนไปที่: ${bankName} ${bankAcc}`;
+                displayDiv.style.color = "#f1c40f"; 
+            } else {
+                displayDiv.innerText = "";
+            }
+        }
+
+        function saveNewShopToHistory() {
+            let name = document.getElementById('inp_shop_partner').value.trim();
+            let bankName = document.getElementById('inp_shop_bank_name').value;
+            let bankAcc = document.getElementById('inp_shop_bank_acc').value.trim();
+            if (!name) return;
+            let shops = JSON.parse(localStorage.getItem('contract_shop_history')) || [];
+            let existingIndex = shops.findIndex(s => s.name === name);
+            let newEntry = { name: name, bankName: bankName, bankAcc: bankAcc };
+            if (existingIndex >= 0) { shops[existingIndex] = newEntry; } else { shops.push(newEntry); }
+            localStorage.setItem('contract_shop_history', JSON.stringify(shops));
+            loadShopHistory();
+        }
 
         window.onload = function() {
             loadShopHistory();
-			generateTable(); initVoiceSystem();
+            generateTable(); initVoiceSystem();
             document.querySelectorAll('.fill-data').forEach(field => { if (!field.innerText) field.innerText = "-"; });
             
-            // ตรวจสอบ URL Parameter สำหรับ Auto Update
             const urlParams = new URLSearchParams(window.location.search);
             const refCNo = urlParams.get('c_no');
             const isAutoUpdate = urlParams.get('auto_update') === 'true';
 
             if (refCNo) {
-                // แสดง Overlay ทันทีถ้าเป็น Auto
                 if (isAutoUpdate) {
                     document.getElementById('autoSaveOverlay').style.display = 'flex';
                     document.getElementById('autoSaveText').innerText = "⏳ กำลังโหลดข้อมูล...";
@@ -825,11 +802,9 @@ function saveNewShopToHistory() {
                 document.getElementById('searchInput').value = refCNo;
                 document.getElementById('inp_c_no').value = refCNo;
                 
-                // ค้นหาข้อมูลก่อน
                 searchContract(refCNo).then((success) => {
                     if (success && isAutoUpdate) {
                         document.getElementById('autoSaveText').innerText = "⏳ โหลดข้อมูลเสร็จสิ้น กำลังบันทึก...";
-                        // หน่วงเวลาเล็กน้อยเพื่อให้ DOM Render เสร็จสมบูรณ์
                         setTimeout(() => { runAllActions(true); }, 2000);
                     } else if (!success && isAutoUpdate) {
                         document.getElementById('autoSaveOverlay').style.display = 'none';
