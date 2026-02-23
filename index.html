@@ -296,7 +296,7 @@
 
     <script>
         // ⚠️ ต้องนำ URL ใหม่ที่ได้จากการ Deploy มาวางที่นี่
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5EvQMo7N7jsKxpqS-gv_PzfTiV09zsqci4rpfUtK-7-ndmJDpNpI3Mzqxh8zdK8JrDw/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBD7BmSsWV5of8MmdDNVJbdF5LuQFDbYOL7BTSXxFti_xCCO2WLmC4pXsMWwZt1uruPw/exec';
         
         let paymentRecords = {};
         let contactImageBase64 = ""; 
@@ -537,7 +537,17 @@
                         else {
                             let payDayVal = parseInt(document.getElementById('inp_p_day').value);
                             let preferredDay = (payDayVal && payDayVal > 0 && payDayVal <= 31) ? payDayVal : startObj.getDate();
-                            targetDate = new Date(startObj.getFullYear(), startObj.getMonth() + i, preferredDay);
+                            
+                            // 1. ตั้งเป็นวันที่ 1 ของเดือนเป้าหมายก่อน
+                            let tempDate = new Date(startObj.getFullYear(), startObj.getMonth() + i, 1);
+                            
+                            // 2. หาวันสุดท้ายของเดือนเป้าหมาย (เช่น เม.ย. จะได้ 30, ก.พ. จะได้ 28/29)
+                            let lastDayOfMonth = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0).getDate();
+                            
+                            // 3. ป้องกันการข้ามเดือน โดยเลือกวันที่น้อยที่สุดระหว่าง วันที่ตั้งไว้ vs วันสุดท้ายของเดือน
+                            let finalDay = Math.min(preferredDay, lastDayOfMonth);
+                            
+                            targetDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), finalDay);
                         }
                         const y = (targetDate.getFullYear() + 543).toString().slice(-2);
                         dateStr = `${targetDate.getDate()} ${months[targetDate.getMonth()]} ${y}`;
