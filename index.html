@@ -13,8 +13,12 @@
     
     <style>
         body { font-family: 'sarabun', sans-serif; background: #f0f0f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .input-panel { width: 35%; background: #2c3e50; color: white; padding: 20px; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; }
+        .input-panel { width: 35%; background: #2c3e50; color: white; padding: 20px; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; padding-bottom: 80px; }
         .input-panel h2 { margin-top: 0; color: #ecf0f1; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .search-box { background: #34495e; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f39c12; }
+        .search-row { display: flex; gap: 5px; }
+        .btn-search { background: #f39c12; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-search:hover { background: #d35400; }
         .payment-update-box { background: #27ae60; padding: 15px; border-radius: 8px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #2ecc71; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .payment-update-box h4 { margin: 0 0 10px 0; color: white; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; }
         .form-group { margin-bottom: 15px; }
@@ -22,40 +26,68 @@
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; border: none; border-radius: 4px; font-family: 'Angsana', sans-serif; box-sizing: border-box; transition: box-shadow 0.2s; }
         .form-group input:focus, .form-group select:focus { outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5); background: #ecf0f1; color: #2c3e50; }
         .section-header { background: #34495e; padding: 10px; margin: 20px -20px 15px; font-weight: bold; }
-        .btn-group { margin-top: 20px; margin-bottom: 40px; }
-        .btn-master { border: none; padding: 15px; width: 100%; font-size: 18px; cursor: pointer; border-radius: 8px; font-weight: bold; color: white; background: #2980b9; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: all 0.3s ease; }
-        .btn-master:hover { background: #1c5980; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.3); }
-        .btn-master:disabled { background: #95a5a6; cursor: not-allowed; transform: none; }
-        .preview-panel { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; background: #525659; box-sizing: border-box; }
+        .btn-group { margin-top: 20px; }
         
-        /* ปรับปรุงโครงสร้างหน้ากระดาษให้เป็น Flexbox และยึดความสูงตายตัว */
-        .legal-page { 
-            width: 100%; 
-            max-width: 215.9mm; 
-            height: 355.6mm; 
-            background: white; 
-            padding: 5mm 5mm; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.5); 
-            position: relative; 
-            box-sizing: border-box; 
-            color: #000; 
-            line-height: 1.6; 
-            font-size: 16px; 
-            display: flex; 
-            flex-direction: column; 
+        /* New Minimal Button */
+        .btn-minimal {
+            border: 1px solid #bdc3c7; padding: 15px; width: 100%; font-size: 18px;
+            cursor: pointer; border-radius: 8px; color: #ecf0f1; background: transparent;
+            transition: all 0.3s ease; margin-bottom: 10px; font-family: 'Sarabun', sans-serif;
         }
+        .btn-minimal:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-minimal-primary { background: #2980b9; color: white; border: none; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .btn-minimal-primary:hover { background: #1c5980; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.3); }
         
+        /* Modal Save Popup */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); z-index: 2000;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background: white; padding: 25px; border-radius: 12px;
+            width: 320px; text-align: center; color: #2c3e50;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-family: 'Sarabun', sans-serif;
+        }
+        .modal-content h3 { margin-top: 0; color: #34495e; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; font-size: 18px; }
+        .modal-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 12px; margin-bottom: 10px;
+            border: 1px solid #bdc3c7; border-radius: 8px; background: white;
+            color: #333; cursor: pointer; font-size: 15px; transition: 0.2s;
+            font-family: 'Sarabun', sans-serif; font-weight: bold;
+        }
+        .modal-btn:hover { background: #f8f9fa; transform: translateY(-1px); }
+        .modal-btn.primary { background: #27ae60; color: white; border: none; }
+        .modal-btn.primary:hover { background: #219653; }
+        .modal-btn.danger { background: transparent; color: #e74c3c; border: none; margin-bottom: 0; box-shadow: none; font-weight: normal; }
+        .modal-btn.danger:hover { background: #fdf0ef; text-decoration: underline; }
+
+        .btn-master { border: none; padding: 10px; width: 100%; font-size: 14px; cursor: pointer; border-radius: 8px; font-weight: bold; color: white; background: #2980b9; transition: all 0.3s ease; }
+        .btn-master:hover { background: #1c5980; transform: translateY(-2px); }
+        
+        .floating-tools { position: fixed; bottom: 20px; left: 20px; width: calc(35% - 60px); background: rgba(44, 62, 80, 0.95); padding: 10px; border-radius: 12px; display: flex; justify-content: space-around; align-items: center; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 1px solid #4a6278; z-index: 1000; backdrop-filter: blur(5px); }
+        .tool-btn { border: none; background: transparent; color: #bdc3c7; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 11px; transition: all 0.2s; padding: 8px 12px; border-radius: 8px; flex: 1; }
+        .tool-btn i { font-size: 18px; margin-bottom: 4px; }
+        .tool-btn:hover { color: white; background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .tool-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        .tool-btn.btn-mic { color: #ecf0f1; border: 1px solid rgba(255,255,255,0.1); }
+        .tool-btn.btn-mic:hover { background: rgba(52, 152, 219, 0.2); color: #3498db; border-color: #3498db; }
+        .tool-btn.btn-mic.listening { color: white; background: #e74c3c; border-color: #e74c3c; animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+        
+        .preview-panel { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; background: #525659; box-sizing: border-box; }
+        .legal-page { width: 100%; max-width: 215.9mm; min-height: 355.6mm; height: auto; background: white; padding: 5mm 5mm; box-shadow: 0 0 15px rgba(0,0,0,0.5); position: relative; box-sizing: border-box; color: #000; line-height: 1.6; font-size: 16px; }
         .doc-header { text-align: right; margin-bottom: 20px; }
         .doc-section-title { font-weight: bold; text-decoration: underline; margin-top: 15px; margin-bottom: 5px; font-size: 18px;}
         .doc-line { display: flex; flex-wrap: wrap; align-items: baseline; margin-bottom: 5px; column-gap: 5px; }
         .doc-label { white-space: nowrap; margin-right: 0px; }
         .fill-data { border-bottom: 1px solid #000; padding: 0 5px; color: #000000; font-weight: Regular; flex-grow: 1; min-width: 30px; text-align: center; }
         .fill-data.fixed-width { flex-grow: 0; min-width: auto; }
-        
-        /* สั่งให้ตารางขยายความสูงเต็มพื้นที่ว่างที่เหลือ */
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; flex-grow: 1; }
-        
-        th, td { border: 1px solid black; padding: 2px 4px; text-align: center; font-size: 12px; word-break: break-word; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        /* ปรับขนาดและ padding เพื่อให้พอดีกับ 15 งวดในขอบกระดาษล่าง */
+        th, td { border: 1px solid black; padding: 3px; text-align: center; font-size: 13px; height: 22px; word-break: break-word; }
         th { background-color: #f2f2f2; }
         
         .auto-save-overlay {
@@ -74,26 +106,16 @@
         @media screen and (max-width: 768px) {
             body { flex-direction: column; height: auto; overflow: visible; }
             .input-panel { width: 100%; height: auto; overflow: visible; border-bottom: 5px solid #1a252f; padding-bottom: 20px; }
+            .floating-tools { position: relative; bottom: auto; left: auto; width: 100%; margin-top: 20px; background: #34495e; }
             .preview-panel { width: 100%; padding: 10px; display: block; }
             .legal-page { padding: 10mm; font-size: 14px; }
         }
-        
-        /* ปรับหน้าตอนพิมพ์ให้ไม่มีระยะขอบจากเบราว์เซอร์ เพื่อให้ Flexbox ทำงานได้แม่นยำ */
         @media print {
-            body { background: white; display: block; height: auto; overflow: visible; margin: 0; }
-            .input-panel { display: none !important; }
+            body { background: white; display: block; height: auto; overflow: visible; }
+            .input-panel, .floating-tools { display: none !important; }
             .preview-panel { padding: 0; display: block; background: white; margin: 0; }
-            .legal-page { 
-                box-shadow: none; 
-                margin: 0; 
-                width: 215.9mm; 
-                max-width: none; 
-                height: 355.6mm; 
-                page-break-after: always; 
-                padding: 10mm; 
-                overflow: hidden; 
-            }
-            @page { margin: 0; size: Legal; }
+            .legal-page { box-shadow: none; margin: 0; width: 215.9mm; max-width: none; height: auto; page-break-after: always; padding: 10mm; overflow: hidden; }
+            @page { margin: 1cm; size: Legal; }
         }
     </style>
 </head>
@@ -104,10 +126,32 @@
         <div id="autoSaveText">⏳ กำลังดำเนินการอัตโนมัติ...</div>
         <div style="font-size: 16px; margin-top: 10px; color: #ccc;">กรุณาอย่าปิดหน้าต่าง</div>
     </div>
+    
+    <!-- Modal บันทึกข้อมูล -->
+    <div id="saveModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>💾 เลือกรูปแบบการบันทึก</h3>
+            <button class="modal-btn" onclick="saveAsJpgOnly()">
+                <i class="fas fa-file-image" style="color:#2980b9; font-size:18px;"></i> บันทึกเป็นรูปภาพ JPG ลงเครื่อง
+            </button>
+            <button class="modal-btn primary" onclick="runAllActions(); closeSaveModal();">
+                <i class="fas fa-cloud-upload-alt" style="font-size:18px;"></i> บันทึกแบบเก่า (ลงเครื่อง+Drive)
+            </button>
+            <button class="modal-btn danger" onclick="closeSaveModal()">ยกเลิก</button>
+        </div>
+    </div>
 
     <div class="input-panel">
         <h2>ระบบจัดการสัญญา (Admin)</h2>
 		
+        <div class="search-box">
+            <label style="color:#f39c12; font-weight:bold;">🔍 ค้นหา / แก้ไขสัญญาเก่า</label>
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="กรอกเลขที่สัญญาที่ต้องการค้นหา..." style="background: white; color: #333;">
+                <button class="btn-search" onclick="searchContract()">ค้นหา</button>
+            </div>
+        </div>
+
 		<div class="form-group">
             <label style="color:red">รหัสเซลล์ (Sale Code)</label>
             <select id="inp_sale_code" data-map="sale_code" onchange="autoGenContractNo()">
@@ -215,15 +259,23 @@
             <div class="form-group"><label>วิธีการชำระ</label><select id="pay_method_val"><option value="-">- เลือก -</option><option value="โอน">🏦 โอน</option><option value="โอนร้าน">🏪 โอนร้าน</option><option value="เงินสด">💵 เงินสด</option></select></div>
             <div class="form-group"><label>วันที่จ่ายจริง</label><input type="date" id="pay_actual_date"></div>
             <div class="form-group"><label>เลขที่ใบเสร็จ</label><input type="text" id="pay_receipt_no" placeholder="เช่น RC-001"></div>
-            <button class="btn-master" style="background:#27ae60; font-size:14px; padding:10px;" onclick="updatePaymentRecord()">บันทึกข้อมูลการจ่ายงวดนี้</button>
+            <button class="btn-master" style="background:#27ae60;" onclick="updatePaymentRecord()">บันทึกข้อมูลการจ่ายงวดนี้</button>
         </div>
 
         <div class="btn-group">
-            <button class="btn-master" onclick="runAllActions()">
-                <i class="fas fa-save"></i> บันทึกรูปภาพ (ลงเครื่อง+Drive)
+            <button class="btn-minimal btn-minimal-primary" onclick="openSaveModal()">
+                <i class="fas fa-save"></i> บันทึกข้อมูล
             </button>
-            <div style="text-align: center; margin-top: 5px; font-size: 12px; color: #aaa;">(ดาวน์โหลด JPG + อัปโหลด Excel/JPG/PDF ขึ้น Drive)</div>
         </div>
+        
+        <div class="floating-tools">
+            <button class="tool-btn btn-mic" id="btnMic" onclick="toggleVoice()" title="พูด"><i class="fas fa-microphone"></i> พูด</button>
+            <div style="width:1px; height:30px; background:rgba(255,255,255,0.2); margin:0 5px;"></div>
+            <button class="tool-btn btn-undo" onclick="undo()" id="btnUndo" title="ย้อนกลับ"><i class="fas fa-undo"></i> ย้อน</button>
+            <button class="tool-btn btn-redo" onclick="redo()" id="btnRedo" title="ทำซ้ำ"><i class="fas fa-redo"></i> ซ้ำ</button>
+            <button class="tool-btn btn-clear" onclick="clearForm()" title="ล้าง"><i class="fas fa-trash-alt"></i> ล้าง</button>
+        </div>
+        <br><br><br>
     </div>
 
     <div class="preview-panel">
@@ -293,6 +345,57 @@
         
         let paymentRecords = {};
         let contactImageBase64 = ""; 
+
+        // Modal Functions
+        function openSaveModal() { document.getElementById('saveModal').style.display = 'flex'; }
+        function closeSaveModal() { document.getElementById('saveModal').style.display = 'none'; }
+        
+        async function saveAsJpgOnly() {
+            closeSaveModal();
+            try {
+                const btn = document.querySelector('.btn-minimal-primary');
+                if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังบันทึก...'; btn.disabled = true; }
+                
+                const element = document.getElementById('contractContent');
+                const canvas = await html2canvas(element, { 
+                    scale: 2, backgroundColor: "#ffffff", useCORS: true,
+                    windowWidth: 1600, x: 0, y: 0, scrollY: 0,
+                    onclone: (clonedDoc) => {
+                        const clonedHtml = clonedDoc.documentElement;
+                        const clonedBody = clonedDoc.body;
+                        const clonedEl = clonedDoc.getElementById('contractContent');
+                        clonedHtml.style.height = 'auto';
+                        clonedBody.style.height = 'auto';
+                        clonedBody.style.width = '1600px';
+                        clonedBody.style.minHeight = 'auto';
+                        clonedBody.style.overflow = 'visible'; 
+                        clonedBody.style.margin = '0'; 
+                        clonedBody.style.padding = '0';
+                        if(clonedEl) {
+                            clonedEl.style.width = '215.9mm';  
+                            clonedEl.style.minHeight = 'auto'; 
+                            clonedEl.style.height = 'max-content'; 
+                            clonedEl.style.boxShadow = 'none'; 
+                            clonedEl.style.margin = '0 auto';  
+                        }
+                    }
+                });
+                const imageBase64 = canvas.toDataURL('image/jpeg', 0.9);
+                const link = document.createElement('a');
+                link.href = imageBase64;
+                let cNo = document.getElementById('inp_c_no').value || 'Draft';
+                let bName = document.getElementById('inp_b_name').value || 'ลูกค้า';
+                link.download = `สัญญา_${cNo}_${bName}.jpg`.replace(/[\/\s]/g, "-");
+                link.click();
+                alert("✅ บันทึกเป็นรูปภาพ JPG ลงเครื่องสำเร็จ!");
+            } catch(e) {
+                console.error(e);
+                alert("❌ เกิดข้อผิดพลาดในการบันทึกรูปภาพ: " + e.message);
+            } finally {
+                const btn = document.querySelector('.btn-minimal-primary');
+                if(btn) { btn.innerHTML = '<i class="fas fa-save"></i> บันทึกข้อมูล'; btn.disabled = false; }
+            }
+        }
 
         function calcTransfer() {
             let fullPrice = parseFloat(document.getElementById('inp_cost_price').value.replace(/,/g,'')) || 0;
@@ -366,6 +469,55 @@
             obj.value = formatted;
         }
 
+        let historyStack = []; let historyIndex = -1; let isRestoring = false; let saveTimeout;
+        function saveState(force = false) {
+            if (isRestoring) return;
+            clearTimeout(saveTimeout);
+            const performSave = () => {
+                const inputs = document.querySelectorAll('.input-panel input:not(.search-box input), .input-panel select');
+                const currentState = [];
+                inputs.forEach(input => currentState.push(input.value));
+                if (historyIndex < historyStack.length - 1) historyStack = historyStack.slice(0, historyIndex + 1);
+                historyStack.push(currentState);
+                historyIndex++;
+                updateButtonStates();
+            };
+            if (force) performSave(); else saveTimeout = setTimeout(performSave, 500);
+        }
+
+        function restoreState(index) {
+            if (index < 0 || index >= historyStack.length) return;
+            isRestoring = true;
+            const state = historyStack[index];
+            const inputs = document.querySelectorAll('.input-panel input:not(.search-box input), .input-panel select');
+            inputs.forEach((input, i) => {
+                if(state[i] !== undefined) {
+                    input.value = state[i];
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+            historyIndex = index;
+            updateButtonStates();
+            setTimeout(() => { isRestoring = false; }, 100);
+        }
+        function undo() { if (historyIndex > 0) restoreState(historyIndex - 1); }
+        function redo() { if (historyIndex < historyStack.length - 1) restoreState(historyIndex + 1); }
+        function clearForm() {
+            if (confirm('คุณต้องการล้างข้อมูลทั้งหมดใช่หรือไม่?')) {
+                isRestoring = true;
+                document.querySelectorAll('.input-panel input:not(.search-box input)').forEach(input => { input.value = ""; input.dispatchEvent(new Event('input')); });
+                paymentRecords = {};
+                generateTable();
+                isRestoring = false;
+                saveState(true);
+            }
+        }
+        function updateButtonStates() {
+            document.getElementById('btnUndo').disabled = (historyIndex <= 0);
+            document.getElementById('btnRedo').disabled = (historyIndex >= historyStack.length - 1);
+        }
+
         function handleContactImage(input) {
             const statusDiv = document.getElementById('contact_img_status');
             if (input.files && input.files[0]) {
@@ -377,6 +529,28 @@
                 };
                 reader.readAsDataURL(input.files[0]);
             } else { contactImageBase64 = ""; }
+        }
+
+        let recognition; let activeInput = null; 
+        function initVoiceSystem() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { document.getElementById('btnMic').style.display = 'none'; return; }
+            recognition = new SpeechRecognition();
+            recognition.lang = 'th-TH';
+            recognition.onresult = function(event) {
+                if (activeInput) {
+                    const transcript = event.results[0][0].transcript;
+                    activeInput.value = (activeInput.value && activeInput.value.trim() !== "") ? activeInput.value + " " + transcript : transcript;
+                    activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            };
+            const inputs = document.querySelectorAll('.input-panel input');
+            inputs.forEach(input => { input.addEventListener('focus', () => { activeInput = input; }); input.addEventListener('input', () => saveState()); });
+        }
+        function toggleVoice() {
+            const btnMic = document.getElementById('btnMic');
+            if (btnMic.classList.contains('listening')) recognition.stop();
+            else { if(!activeInput) { alert("คลิกช่องที่จะพิมพ์ก่อนครับ"); return; } recognition.start(); }
         }
 
         function applySmartFormatting(id, value) {
@@ -452,11 +626,9 @@
                         } else {
                             let payDayVal = parseInt(document.getElementById('inp_p_day').value);
                             let preferredDay = (payDayVal && payDayVal > 0 && payDayVal <= 31) ? payDayVal : startObj.getDate();
-                            
                             let tempDate = new Date(startObj.getFullYear(), startObj.getMonth() + i, 1);
                             let lastDayOfMonth = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0).getDate();
                             let finalDay = Math.min(preferredDay, lastDayOfMonth);
-                            
                             targetDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), finalDay);
                         }
                         
@@ -480,9 +652,60 @@
             if(select.querySelector(`option[value='${currentSelect}']`)) select.value = currentSelect;
         }
 
+        function searchContract(directCNo = null) {
+            const searchNo = directCNo || document.getElementById('searchInput').value.trim();
+            if(!searchNo) { alert("กรุณากรอกเลขที่สัญญา"); return Promise.reject("No Input"); }
+            
+            const btn = document.querySelector('.btn-search');
+            if(btn) { btn.innerText = "⏳.."; btn.disabled = true; }
+
+            return fetch(APPS_SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'search', contract_no: searchNo }) 
+            })
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === 'success') {
+                    const data = result.data;
+                    for (const key in data) {
+                        const input = document.querySelector(`[data-map="${key}"]`);
+                        if(input) { 
+                            input.value = data[key]; 
+                            input.dispatchEvent(new Event(input.type === 'date' ? 'change' : 'input')); 
+                        }
+                    }
+
+                    const cNoVal = document.getElementById('inp_c_no').value;
+                    if (cNoVal) {
+                        const prefix = cNoVal.split('-')[0].trim().toUpperCase(); 
+                        const saleSelect = document.getElementById('inp_sale_code');
+                        if (prefix === 'T' || prefix === 'K' || prefix === 'N') {
+                            saleSelect.value = prefix;
+                        }
+                    }
+
+                    if(data.payment_records_json) { try { paymentRecords = JSON.parse(data.payment_records_json); } catch(e) {} } 
+                    generateTable(); 
+                    
+                    if(!directCNo) alert("✅ พบข้อมูลสัญญา: " + data.b_name);
+                    return true;
+                } else { 
+                    if(!directCNo) alert("❌ ไม่พบข้อมูลสัญญานี้"); 
+                    return false;
+                }
+            })
+            .catch(e => { 
+                if(!directCNo) alert("เชื่อมต่อไม่ได้: " + e.message); 
+                return false;
+            }) 
+            .finally(() => { 
+                if(btn) { btn.innerText = "ค้นหา"; btn.disabled = false; } 
+            });
+        }
+
         async function runAllActions(isAuto = false) {
-            const btn = document.querySelector('.btn-group .btn-master');
-            if(btn) { btn.innerText = "⏳ กำลังดำเนินการ..."; btn.disabled = true; }
+            const btn = document.querySelector('.btn-minimal-primary');
+            if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังดำเนินการ...'; btn.disabled = true; }
             
             if(isAuto) {
                 document.getElementById('autoSaveOverlay').style.display = 'flex';
@@ -591,7 +814,7 @@
             } 
             finally { 
                 if(btn) { 
-                    btn.innerHTML = '<i class="fas fa-save"></i> บันทึกรูปภาพ (ลงเครื่อง+Drive)'; 
+                    btn.innerHTML = '<i class="fas fa-save"></i> บันทึกข้อมูล'; 
                     btn.disabled = false; 
                 } 
             }
@@ -659,9 +882,35 @@
 
         window.onload = function() {
             loadShopHistory();
-            generateTable(); 
+            generateTable(); initVoiceSystem();
             document.querySelectorAll('.fill-data').forEach(field => { if (!field.innerText) field.innerText = "-"; });
-            autoGenContractNo();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCNo = urlParams.get('c_no');
+            const isAutoUpdate = urlParams.get('auto_update') === 'true';
+
+            if (refCNo) {
+                if (isAutoUpdate) {
+                    document.getElementById('autoSaveOverlay').style.display = 'flex';
+                    document.getElementById('autoSaveText').innerText = "⏳ กำลังโหลดข้อมูล...";
+                }
+
+                document.getElementById('searchInput').value = refCNo;
+                document.getElementById('inp_c_no').value = refCNo;
+                
+                searchContract(refCNo).then((success) => {
+                    if (success && isAutoUpdate) {
+                        document.getElementById('autoSaveText').innerText = "⏳ โหลดข้อมูลเสร็จสิ้น กำลังบันทึก...";
+                        setTimeout(() => { runAllActions(true); }, 2000);
+                    } else if (!success && isAutoUpdate) {
+                        document.getElementById('autoSaveOverlay').style.display = 'none';
+                        alert("❌ ไม่พบสัญญา ไม่สามารถบันทึกอัตโนมัติได้");
+                    }
+                });
+            } else {
+                autoGenContractNo();
+            }
+            saveState(true);
         };
     </script>
 </body>
