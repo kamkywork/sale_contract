@@ -86,7 +86,6 @@
         .fill-data { border-bottom: 1px solid #000; padding: 0 5px; color: #000000; font-weight: Regular; flex-grow: 1; min-width: 30px; text-align: center; }
         .fill-data.fixed-width { flex-grow: 0; min-width: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        /* ปรับขนาดและ padding เพื่อให้พอดีกับ 15 งวดในขอบกระดาษล่าง */
         th, td { border: 1px solid black; padding: 3px; text-align: center; font-size: 13px; height: 22px; word-break: break-word; }
         th { background-color: #f2f2f2; }
         
@@ -245,6 +244,15 @@
         <div class="form-group"><label>อายุงาน (ปี/เดือน)</label><input type="text" id="inp_g_exp" data-map="g_exp" oninput="update('g_exp', this.value)"></div>
 
         <div class="section-header">รายละเอียดสัญญา</div>
+        <div class="form-group" style="background: rgba(241, 196, 15, 0.1); padding: 10px; border-radius: 4px; border: 1px solid #f39c12;">
+            <label style="color:#f39c12; font-weight:bold;"><i class="fas fa-flag"></i> สถานะสัญญา</label>
+            <select id="inp_c_status" data-map="c_status" onchange="update('c_status', this.value); generateTable()" style="font-weight:bold; color:#d35400;">
+                <option value="ปกติ">ปกติ (Active)</option>
+                <option value="ชำระครบแล้ว">✅ ชำระครบแล้ว (ปิดยอด)</option>
+                <option value="ยกเลิกสัญญา">🚫 ยกเลิกสัญญา</option>
+                <option value="ลูกค้าคืนเครื่อง">🔄 ลูกค้าคืนเครื่อง</option>
+            </select>
+        </div>
         <div class="form-group"><label>ชื่อสินค้า</label><input type="text" id="inp_p_name" data-map="p_name" oninput="update('p_name', this.value)"></div>
         <div class="form-group"><label>ชำระวันทำสัญญา/ดาวน์ (บาท)</label><input type="text" id="inp_p_down" data-map="p_down" oninput="autoComma(this); update('p_down', this.value); calcTransfer();"></div>
         <div class="form-group"><label>จำนวนงวดทั้งหมด (เดือน)</label><input type="number" id="installments" data-map="p_install" oninput="update('p_install', this.value); generateTable()"></div>
@@ -604,6 +612,11 @@
             const inputInstallments = parseInt(document.getElementById('installments').value) || 0;
             const fixedRows = 15; 
             let startDateVal = document.getElementById('startDate').value;
+            
+            // ดึงค่าสถานะสัญญาจาก dropdown
+            let cStatusEl = document.getElementById('inp_c_status');
+            let cStatusVal = cStatusEl ? cStatusEl.value : 'ปกติ';
+
             const tbody = document.querySelector("#paymentTable tbody");
             const select = document.getElementById("pay_installment_no");
             tbody.innerHTML = "";
@@ -611,10 +624,38 @@
             select.innerHTML = '<option value="">-- เลือกงวด --</option>';
             const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
             
+            // ตรวจสอบจำนวนงวดที่ชำระแล้ว
+            let paidCount = 0;
+            for (let i = 1; i <= inputInstallments; i++) {
+                if (paymentRecords[i]) {
+                    paidCount++;
+                }
+            }
+
+            let targetStatus = cStatusVal;
+            
+            // ป้องกันค่าว่างจากฐานข้อมูลเก่า ถ้าว่างให้ถือว่าเป็น "ปกติ"
+            if (!targetStatus || targetStatus.trim() === '' || targetStatus === '-') {
+                targetStatus = 'ปกติ';
+            }
+            
+            // เงื่อนไขปิดยอดอัตโนมัติ: ถ้าจ่ายครบทุกงวด หรือมีการโปะจ่ายในงวดสุดท้าย
+            if (inputInstallments > 0 && (paidCount >= inputInstallments || paymentRecords[inputInstallments])) {
+                if (targetStatus === 'ปกติ' || targetStatus === '') {
+                    targetStatus = 'ชำระครบแล้ว';
+                    if (cStatusEl) {
+                        cStatusEl.value = 'ชำระครบแล้ว';
+                    }
+                }
+            }
+
+            let statusRowPrinted = false;
+
             for (let i = 0; i < fixedRows; i++) {
                 let dateStr = "", actDateStr = "", receiptStr = "", paidAmountStr = "", methodStr = "";
                 let instNum = i + 1;
                 
+                // คำนวณวันที่สำหรับงวดตามสัญญา
                 if (i < inputInstallments) {
                     if(startDateVal) {
                         const parts = startDateVal.split('-');
@@ -647,7 +688,77 @@
                     }
                     if (i === inputInstallments - 1) document.getElementById('p_last').innerText = dateStr;
                 }
-                tbody.innerHTML += `<tr><td>${i < inputInstallments ? instNum : instNum}</td><td>${dateStr}</td><td>${i < inputInstallments ? paidAmountStr : ""}</td><td>${methodStr}</td><td style="color:red;">${actDateStr}</td><td style="color:red; font-weight:bold;">${receiptStr}</td></tr>`;
+                
+                // --- การแสดงผลในตาราง ---
+                if (instNum <= inputInstallments) {
+                    // กรณีที่ 1: งวดอยู่ในสัญญา
+                    if (paymentRecords[instNum]) {
+                        // จ่ายแล้ว เติมคำว่า "(ชำระครบ)" ในงวดสุดท้าย
+                        let remarks = receiptStr;
+                        if (targetStatus === 'ชำระครบแล้ว' && instNum === inputInstallments) {
+                            remarks = receiptStr ? `${receiptStr} (ชำระครบ)` : "ชำระครบ";
+                        }
+                        tbody.innerHTML += `<tr>
+                            <td>${instNum}</td>
+                            <td>${dateStr}</td>
+                            <td>${paidAmountStr}</td>
+                            <td>${methodStr}</td>
+                            <td style="color:red;">${actDateStr}</td>
+                            <td style="color:red; font-weight:bold;">${remarks}</td>
+                        </tr>`;
+                    } else {
+                        // ยังไม่จ่าย ให้ตรวจสอบสถานะว่าถูกยกเลิกหรือคืนเครื่องหรือไม่
+                        if (targetStatus === 'ยกเลิกสัญญา' || targetStatus === 'ลูกค้าคืนเครื่อง') {
+                            // ขีดฆ่างวดที่เหลือ
+                            let dash = `<span style="color:#bdc3c7;">-</span>`;
+                            tbody.innerHTML += `<tr>
+                                <td><del style="color:#7f8c8d;">${instNum}</del></td>
+                                <td style="text-decoration:line-through; color:#7f8c8d;">${dash}</td>
+                                <td style="text-decoration:line-through; color:#7f8c8d;">${dash}</td>
+                                <td style="text-decoration:line-through; color:#7f8c8d;">${dash}</td>
+                                <td style="text-decoration:line-through; color:#7f8c8d;">${dash}</td>
+                                <td style="text-decoration:line-through; color:#7f8c8d;">${dash}</td>
+                            </tr>`;
+                        } else {
+                            // สถานะปกติ รอจ่าย
+                            tbody.innerHTML += `<tr>
+                                <td>${instNum}</td>
+                                <td>${dateStr}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>`;
+                        }
+                    }
+                } else {
+                    // กรณีที่ 2: งวดที่เกินจากสัญญา
+                    // เช็คเฉพาะ 3 สถานะที่ต้องการให้แสดงคำลงท้ายเท่านั้น
+                    if ((targetStatus === 'ชำระครบแล้ว' || targetStatus === 'ยกเลิกสัญญา' || targetStatus === 'ลูกค้าคืนเครื่อง') && !statusRowPrinted) {
+                        let displayStatus = targetStatus;
+                        if (targetStatus === 'ชำระครบแล้ว') displayStatus = '✅ ชำระครบแล้ว (ปิดยอด)';
+                        if (targetStatus === 'ยกเลิกสัญญา') displayStatus = '🚫 ยกเลิกสัญญา';
+                        if (targetStatus === 'ลูกค้าคืนเครื่อง') displayStatus = '🔄 ลูกค้าคืนเครื่อง';
+                        
+                        tbody.innerHTML += `<tr>
+                            <td></td>
+                            <td colspan="5" style="color:red; font-weight:bold; font-size:15px; background-color: rgba(253, 237, 236, 0.6); letter-spacing: 0.5px; text-align:center;">
+                                *** ${displayStatus} ***
+                            </td>
+                        </tr>`;
+                        statusRowPrinted = true;
+                    } else {
+                        // สถานะปกติ หรือบรรทัดอื่น ๆ ที่เกินมา ปล่อยเป็นช่องว่างทั้งหมด ไร้เครื่องหมายดอกจัน
+                        tbody.innerHTML += `<tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>`;
+                    }
+                }
             }
             if(select.querySelector(`option[value='${currentSelect}']`)) select.value = currentSelect;
         }
